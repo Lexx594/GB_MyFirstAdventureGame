@@ -6,13 +6,13 @@ public class MineBehaviourScript : MonoBehaviour
 {
 
     [SerializeField] private AudioSource _audsActive; //компонент audiosource
-    [SerializeField] private AudioSource _audsBoom; //компонент audiosource
+    [SerializeField] private AudioSource _audsExplosion; //компонент audiosource
     [Header("Настройка мины")]
-    [SerializeField] private float _ActiveTime = 3f; //задержка взрыва мины
-    [SerializeField] private float _BoomTime = 3f; //время взрыва мины
+    [SerializeField] private float _ActiveTime = 2f; //задержка взрыва мины
+    //[SerializeField] private float _ExplosionTime = 3f; //время взрыва мины
 
     private bool _isActive = false;
-    private bool _isBoom = false;
+    private bool _isExplosion = false;
 
     // Start is called before the first frame update
     void Start()
@@ -29,47 +29,39 @@ public class MineBehaviourScript : MonoBehaviour
             _ActiveTime -= Time.deltaTime;//отнимаем время таймера
             if (_ActiveTime <= 0)
             {
-                
-                _audsBoom.Play();
+                this.gameObject.transform.GetChild(0).gameObject.SetActive(false); //деактивируем 1 ребенка (модель мины)
+                this.gameObject.transform.GetChild(1).gameObject.SetActive(true);  //активируем 1 ребенка (эффект взрыва)
+                _audsExplosion.Play();
                 Debug.Log("Взрыв мины");                             
                 _isActive = false;
-                _isBoom = true;
-                //Destroy(gameObject, 3f);
+                _isExplosion = true;
+                Destroy(this.gameObject, 3f); //уничтожаем объект мина через 3 секунды
             }
                        
         }
-        else if(_isBoom)
-        {
-            _BoomTime -= Time.deltaTime;//отнимаем время таймера
-            if (_BoomTime <= 0)
-            {
-
-                _audsBoom.Play();
-                Debug.Log("Взрыв мины");
-                //если время меньше или равно 0                
-                _isActive = false;
-                Destroy(gameObject);
-                //GameObject.Destroy(this.gameObject);
-            }
-
-
-
-        }
+      
 
     }
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
-
-        if (other.name == "Player" || other.name == "RockСast(Clone)")
+        //уничтожаем объект находящийся в зоне поражения мины
+        if (_isExplosion)
         {
+            Destroy(other.gameObject);
 
-            //_audsBoom.Play();
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.name == "Player" || collision.gameObject.name == "RockСast(Clone)")
+        {
             _audsActive.Play();
             _isActive = true;
         }
+
+
     }
-
-
 
 
 

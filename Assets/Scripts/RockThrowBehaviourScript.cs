@@ -29,10 +29,9 @@ public class RockThrowBehaviourScript : MonoBehaviour
     void OnTriggerStay(Collider other)
     {
         
-        if (other.name == "StackRocks" && Input.GetMouseButtonDown(1))
+        if (other.name == "StackRocks" && Input.GetMouseButton(1))
         {
-
-            _rocks++;
+            if (_rocks < 20f) _rocks++;
             Debug.Log("Камень подобран");
 
 
