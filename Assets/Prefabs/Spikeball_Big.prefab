@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2198943086508590105
 Transform:
   m_ObjectHideFlags: 0
@@ -919,7 +919,7 @@ ParticleSystem:
     m_BurstCount: 0
     m_Bursts: []
   SizeModule:
-    enabled: 1
+    enabled: 0
     curve:
       serializedVersion: 2
       minMaxState: 1
@@ -4786,6 +4786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88befbc37fe20245927a1d180f91ff7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerScript: {fileID: 0}
   player: {fileID: 0}
   whatIsGround:
     serializedVersion: 2

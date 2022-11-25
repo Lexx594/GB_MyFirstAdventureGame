@@ -11,16 +11,25 @@ namespace Adventure
   
         [SerializeField] private ContrDoorBehaviourScript _controledDoor;
         [SerializeField] private AudioSource _pushButton; //компонент audiosource
+        private Animator _animator;
+        private bool _check = true;
 
+        private void Start()
+        {
+            _animator = GetComponent<Animator>();
+        }
 
         private void OnTriggerEnter(Collider other)
         {
             
-            if (other.name == "Player")
+            if (other.name == "Player" && _check)
             {
                 //Debug.Log("Кнопка нажата");
                 _controledDoor.Activate();
                 _pushButton.Play();
+                _animator.SetTrigger("ButtonPress");
+                _check = false;
+                //this.gameObject.GetComponent<Animator>().enabled = false;
             }         
             
         }

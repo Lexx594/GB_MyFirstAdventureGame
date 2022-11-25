@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 namespace Adventure
 {
 
 
     public class SpearTrapBehaviourScript : MonoBehaviour
     {
-
+        [SerializeField] private PlayerBehaviourScript _playerScript; //ссылка на основной скрипт игрока
         [SerializeField] private AudioSource _auds; //компонент audiosource
         [Header("Настройка ловушки")]
         [SerializeField] private float _closureTime = 5f; //время закрытия ловушки
@@ -17,14 +18,7 @@ namespace Adventure
 
         private bool _isActive = true;
         private bool _isRecharge = true;
-        private bool _isDeactive = false;
-
-        void Start()
-        {
-
-
-        }
-
+        public bool isDeactive = false;
 
         void Update()
         {
@@ -55,16 +49,12 @@ namespace Adventure
 
             }
 
-
-
-
-
         }
 
 
         void OnTriggerEnter(Collider other)
         {
-            if (!_isDeactive)
+            if (!isDeactive)
             {
                 if (!_isRecharge && (other.name == "Player" || other.name == "RockСast(Clone)" || other.name == "Rat(Clone)"))
                 {
@@ -73,7 +63,15 @@ namespace Adventure
                     _rechargeTime = 5f;
                     _closureTime = 5f;
                     _isActive = false;
-                    Destroy(other.gameObject);
+                    if(other.name == "Player")
+                    {
+                        _playerScript.Death();
+                    }
+                    else
+                    {
+                        Destroy(other.gameObject);
+                    }
+                    
 
                 }
             }
@@ -81,12 +79,12 @@ namespace Adventure
 
         internal void Activate()
         {
-            _isDeactive = false;
+            isDeactive = false;
         }
 
         internal void Deactivate()
         {
-            _isDeactive = true;
+            isDeactive = true;
         }
 
 
