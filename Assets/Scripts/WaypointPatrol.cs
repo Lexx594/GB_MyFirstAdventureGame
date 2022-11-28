@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.AI;
-
-
-
 namespace Adventure
 {
 
@@ -17,7 +16,7 @@ namespace Adventure
 
         public float sightRange, attackRange; // переменные для дальности видимости и дальности атаки
         public bool playerInSightRange, playerInAttackRange; //для проверки нахождения игрока в зоне досигаемости
-
+        public bool playerInLineSight;
 
 
         public NavMeshAgent navMeshAgent;
@@ -35,17 +34,40 @@ namespace Adventure
 
         void Update()
         {
+            
+            var direction = player.transform.position - transform.position;
+            RaycastHit hit;
+            Ray ray = new Ray(transform.position, direction);
+            bool flag = false;
 
             // проверяем находится ли игрок на растоянии атаки
             playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer); //зона видимости игрока равна контрольной сфере используемой свою позицию, диапазона видимости и маски слоя игрока
             playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer); //аналогично но для атаки
 
+            playerInLineSight = Physics.Raycast(ray, out hit, sightRange);
+            //playerInLineSight = Physics.Linecast(transform.position, player.position, whatIsPlayer);
+
+            
+            if (hit.collider != null)
+            {
+                //Debug.Log(hit.collider.name);
+
+                if (hit.collider.tag == player.tag) flag = true;
+                else flag = false;
+            }
+            else flag = false;
+
+
+
+
+            Debug.DrawRay(transform.position, direction*1f , Color.red);
+            //Debug.DrawLine(transform.position, player.position, Color.blue);
             //если игрок не в зоне видимости и не в зоне атаки враг должен патрулировать
             if (!playerInSightRange && !playerInAttackRange) Patroling();
             //если игрок в зоне видимости, но не в зоне атаки враг должен преследовать игрока
-            if (playerInSightRange && !playerInAttackRange) ChasePlayer();
+            if (playerInSightRange && !playerInAttackRange && flag) ChasePlayer();
             // если игрок в зоне видимости и в зоне атаки враг должен атаковать игрока
-            if (playerInSightRange && playerInAttackRange) AttackPlayer();
+            if (playerInSightRange && playerInAttackRange && flag) AttackPlayer();
 
         }
 

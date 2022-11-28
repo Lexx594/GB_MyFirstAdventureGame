@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace Adventure
 {
@@ -32,7 +34,17 @@ namespace Adventure
 
         [Header("Инвентарь")]
 
-        [SerializeField] private float _rocks = 0f;
+        [SerializeField] private GameObject _stoneIcon;
+        [SerializeField] private GameObject _slowStoneIcon;
+        [SerializeField] private GameObject _fireStoneIcon;
+
+        [SerializeField] private int _stone = 0;
+        [SerializeField] private int _slowStone = 0;
+        [SerializeField] private int _fireStone = 0;
+
+        //private string _stoneText;
+        //private string _slowStoneText;
+        //private string _fireStoneText;
 
 
         private bool _action;
@@ -76,14 +88,41 @@ namespace Adventure
 
             _animator.SetBool("Action", _action);
             _animator.SetBool("Attack", _attack);
-            if (Input.GetMouseButtonDown(0) && _rocks != 0f)
+
+            
+
+            //заполняем инвентарь
+            if (_stone > 0)
             {
-                _attack = true;
-                _rocks--;
-                // Если нажали левую кнопку мыши
-                Invoke(nameof(Attack), 0.5f);
-                Invoke(nameof(ResetAll), 0.5f);
+                _stoneIcon.SetActive(true);
+                _stoneIcon.transform.GetChild(0).GetComponent<Text>().text = _stone.ToString();
+                //Transform stoneText = _stoneIcon.transform.GetChild(0);
+                //Text txt = stoneText.GetComponent<Text>();
+                //txt.text = _stone.ToString();
             }
+            else
+            {
+                _stoneIcon.SetActive(false);
+            }
+            if (_slowStone > 0)
+            {
+                _slowStoneIcon.SetActive(true);
+                _slowStoneIcon.transform.GetChild(0).GetComponent<Text>().text = _slowStone.ToString();
+            }
+            else
+            {
+                _slowStoneIcon.SetActive(false);
+            }
+            if (_fireStone > 0)
+            {
+                _fireStoneIcon.SetActive(true);
+                _fireStoneIcon.transform.GetChild(0).GetComponent<Text>().text = _fireStone.ToString();
+            }
+            else
+            {
+                _fireStoneIcon.SetActive(false);
+            }
+
 
         }
 
@@ -91,9 +130,9 @@ namespace Adventure
         void FixedUpdate()
         {
             //Создаем новую переменную Vector3 для хранения вращения влево и вправо
-            Vector3 rotation = Vector3.up * _hInput;
+            Vector3 rotation1 = Vector3.up * _hInput;
             //Метод Quaternion.Euler принимает на вход Vector3 и возвращает значение поворота в углах Эйлера
-            Quaternion angleRot = Quaternion.Euler(rotation * Time.fixedDeltaTime);
+            Quaternion angleRot = Quaternion.Euler(rotation1 * Time.fixedDeltaTime);
 
             _animator.SetBool("Grounded", _grounded);
             _animator.SetInteger("ForwardSpeed", (int)_vInput);
@@ -123,6 +162,33 @@ namespace Adventure
                 m_AudioSource.Stop();
             }
 
+            //бросок камня по направлению курсора
+
+            RaycastHit hit; //удар луча о препятсятвие
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // создаем луч из камеры в направлении курсора мыши
+            Debug.DrawRay(ray.origin, ray.direction * 5f, Color.green); //визуализируем луч зеленым цветом
+
+            if (Input.GetMouseButtonDown(0) && _stone != 0) // Если нажали левую кнопку мыши и у нас есть камни
+            {
+                if(Physics.Raycast(ray, out hit)) //Если луч попал в препятствие
+                {                           
+                    Vector3 direction = hit.point - transform.position; //угол между точкой куда попал луч и направлением игрока
+                    Quaternion rotation = Quaternion.LookRotation(direction); //высчитываем кватернион на который необходимо повернуться
+                    rotation.x = 0f; //стабилизиреум квартанион по осям x и z
+                    rotation.z = 0f;
+                    //rotation = rotation.normalized; //нормализуем кватернион (без этого выдает ошибку при стабилизации)
+                    //_rb.MoveRotation(rotation); //поворачиваем персонажа
+
+                    transform.localRotation = Quaternion.Slerp(transform.rotation, rotation, 50 * Time.deltaTime);
+                    
+                    _attack = true;
+                    _stone--;
+                    
+                    Invoke(nameof(Attack), 0.5f);
+                    Invoke(nameof(ResetAll), 0.5f);
+                }
+            }
         }
 
         private void Attack()
@@ -161,7 +227,7 @@ namespace Adventure
 
             if (other.name == "StackRocks" && Input.GetMouseButtonDown(1))
             {
-                _rocks++;
+                _stone++;
                 Debug.Log("Камень подобран");
                 _action = true;
                 Invoke(nameof(ResetAll), 0.5f);

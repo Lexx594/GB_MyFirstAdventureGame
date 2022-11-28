@@ -4798,6 +4798,7 @@ MonoBehaviour:
   attackRange: 3
   playerInSightRange: 1
   playerInAttackRange: 1
+  playerInLineSight: 0
   navMeshAgent: {fileID: 1542101916}
   waypoints:
   - {fileID: 0}

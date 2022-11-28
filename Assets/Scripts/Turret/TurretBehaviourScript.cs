@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 namespace Adventure
 {
@@ -35,6 +36,28 @@ namespace Adventure
 
         private void Update()
         {
+
+            //var direction = player.transform.position - transform.position;
+            RaycastHit hit;
+            Ray ray = new Ray(transform.position, transform.forward);
+            Debug.DrawRay(transform.position, transform.forward, Color.yellow);
+            bool flag = false;
+
+            if (Physics.Raycast(ray, out hit, _sightRange) && hit.collider != null)
+            {
+                //Debug.Log(hit.collider.name);
+
+                if (hit.collider.tag == _player.tag) flag = true;
+                else flag = false;
+            }
+            else flag = false;
+
+
+            //if(hit.collider == null)
+            //{
+
+            //}
+
             // проверяем находится ли игрок на растоянии атаки
             _playerInSightRange = Physics.CheckSphere(transform.position, _sightRange, _whatIsPlayer); //зона видимости игрока равна контрольной сфере используемой свою позицию, диапазона видимости и маски слоя игрока
             _playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, _whatIsPlayer); //аналогично но для атаки
@@ -43,7 +66,11 @@ namespace Adventure
             //если игрок в зоне видимости, но не в зоне атаки враг должен преследовать игрока
             if (_playerInSightRange && !_playerInAttackRange) LookATPlayer(); 
             // если игрок в зоне видимости и в зоне атаки враг должен атаковать игрока
-            if (_playerInSightRange && _playerInAttackRange) AttackPlayer();
+            if (_playerInSightRange && _playerInAttackRange && flag ) AttackPlayer();
+
+
+            
+
         }
 
         private void LookATPlayer() //плавный поворот на игрока
@@ -51,8 +78,6 @@ namespace Adventure
             var direction = _player.transform.position - transform.position;
             var rotation = Vector3.RotateTowards(transform.forward, direction, _rotationSpeed * Time.deltaTime, 0f);
             transform.rotation = Quaternion.LookRotation(rotation);
-
-
         }
 
 
