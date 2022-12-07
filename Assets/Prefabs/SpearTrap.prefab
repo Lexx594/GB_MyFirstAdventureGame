@@ -54,7 +54,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.65, y: 5.23, z: 1.84}
+  m_Size: {x: 1.65, y: 5.23, z: 0.54}
   m_Center: {x: 0, y: 1.37, z: 0}
 --- !u!82 &7592284015043663426
 AudioSource:
@@ -164,9 +164,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e3631bc6a30cee47b82765d4c7b5902, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerScript: {fileID: 0}
   _auds: {fileID: 7592284015043663426}
   _closureTime: 5
   _rechargeTime: 5
+  isDeactive: 0
 --- !u!1001 &7592284015144524445
 PrefabInstance:
   m_ObjectHideFlags: 0

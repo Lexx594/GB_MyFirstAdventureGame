@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.UIElements;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
+
+
 namespace Adventure
 {
 
@@ -18,6 +16,9 @@ namespace Adventure
         public bool playerInSightRange, playerInAttackRange; //для проверки нахождения игрока в зоне досигаемости
         public bool playerInLineSight;
 
+
+        [SerializeField] private AudioSource _audsDestroy;
+        [SerializeField] private AudioSource _audsPlayerKill;
 
         public NavMeshAgent navMeshAgent;
         public Transform[] waypoints;
@@ -60,7 +61,7 @@ namespace Adventure
 
 
 
-            Debug.DrawRay(transform.position, direction*1f , Color.red);
+            Debug.DrawRay(transform.position, direction, Color.red);
             //Debug.DrawLine(transform.position, player.position, Color.blue);
             //если игрок не в зоне видимости и не в зоне атаки враг должен патрулировать
             if (!playerInSightRange && !playerInAttackRange) Patroling();
@@ -87,14 +88,30 @@ namespace Adventure
             navMeshAgent.SetDestination(player.position);
             this.gameObject.transform.GetChild(0).gameObject.SetActive(true); //активируем 1 ребенка (вспышка)
         }
-
+        bool flagAttack = true;
         private void AttackPlayer()
         {
             
-            // здесь необходимо прописать код атаки
-            _playerScript.Death();
-
+            if (flagAttack)
+            {
+                Debug.Log("Бум");
+                _audsPlayerKill.Play();
+                // здесь необходимо прописать код атаки
+                _playerScript.Death();
+                flagAttack = false;
+            }
         }
+
+        void OnTriggerEnter(Collider other)
+        {
+            if(other.tag == "enemy")
+            {
+                _audsDestroy.Play();
+                Destroy(other.gameObject, 2f);
+            }
+
+
+        }    
 
         private void OnDrawGizmosSelected() //визуализируем атаку и начало преследования
         {

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 100248763}
   m_Layer: 10
   m_Name: StackRocks
-  m_TagString: Untagged
+  m_TagString: Things
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

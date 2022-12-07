@@ -9,46 +9,50 @@ namespace Adventure
     public class InventoryBehaviourScript : MonoBehaviour
     {
 
-        public GameObject stoneIcon;
-        public GameObject slowStoneIcon;
-        public GameObject fireStoneIcon;
+        public GameObject _stoneIcon;
+        public GameObject _slowStoneIcon;
+        public GameObject _fireStoneIcon;
 
-        [HideInInspector] public int stone = 0;
-        [HideInInspector] public int slowStone = 0;
-        [HideInInspector] public int fireStone = 0;
+        [HideInInspector] public int _stone = 0;
+        [HideInInspector] public int _slowStone = 0;
+        [HideInInspector] public int _fireStone = 0;
 
         public string stoneText;
 
 
         private void Update()
         {
-            
-            if(stone > 0)
+
+            //заполняем инвентарь
+            if (_stone > 0)
             {
-                stoneIcon.SetActive(true);
-                stoneText = stone.ToString();
-                stoneIcon.transform.GetChild(0).GetComponent<Text>().text = stoneText;
-                
+                _stoneIcon.SetActive(true);
+                _stoneIcon.transform.GetChild(0).GetComponent<Text>().text = _stone.ToString();
+                //Transform stoneText = _stoneIcon.transform.GetChild(0);
+                //Text txt = stoneText.GetComponent<Text>();
+                //txt.text = _stone.ToString();
             }
             else
             {
-                stoneIcon.SetActive(false);
+                _stoneIcon.SetActive(false);
             }
-            if (slowStone > 0)
+            if (_slowStone > 0)
             {
-                slowStoneIcon.SetActive(true);
-            }
-            else
-            {
-                slowStoneIcon.SetActive(false);
-            }
-            if (fireStone > 0)
-            {
-                fireStoneIcon.SetActive(true);
+                _slowStoneIcon.SetActive(true);
+                _slowStoneIcon.transform.GetChild(0).GetComponent<Text>().text = _slowStone.ToString();
             }
             else
             {
-                fireStoneIcon.SetActive(false);
+                _slowStoneIcon.SetActive(false);
+            }
+            if (_fireStone > 0)
+            {
+                _fireStoneIcon.SetActive(true);
+                _fireStoneIcon.transform.GetChild(0).GetComponent<Text>().text = _fireStone.ToString();
+            }
+            else
+            {
+                _fireStoneIcon.SetActive(false);
             }
 
 
