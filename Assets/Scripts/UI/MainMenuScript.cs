@@ -27,12 +27,12 @@ namespace Adventure
             _quit.onClick.AddListener(Quit);
         }
 
-        private void Quit()
+        public void Quit()
         {
             Application.Quit();
         }
 
-        private void ResetGame()
+        public void ResetGame()
         {
             SceneManager.LoadScene(0);
         }

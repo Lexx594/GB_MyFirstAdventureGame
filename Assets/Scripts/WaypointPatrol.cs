@@ -110,6 +110,11 @@ namespace Adventure
                 Destroy(other.gameObject, 2f);
             }
 
+            if (other.name == "ToxicRockСast Variant(Clone)")
+            {
+                gameObject.GetComponent<NavMeshAgent>().speed = gameObject.GetComponent<NavMeshAgent>().speed / 1.3f;
+            }
+
 
         }    
 

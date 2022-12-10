@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using TMPro;
 
 namespace Adventure
 {
@@ -11,10 +12,10 @@ namespace Adventure
     public class PlayerBehaviourScript : MonoBehaviour
     {
         [Header("Настройка движения")]
-        [SerializeField] private float _moveSpeed = 5f;
-        [SerializeField] private float _runSpeed = 10f;
+        [SerializeField] private float _moveSpeed = 4f;
+        [SerializeField] private float _runSpeed = 7f;
         [SerializeField] private float _rotateSpeed = 75f;
-        [SerializeField] private float _jumpForce = 10f;
+        //[SerializeField] private float _jumpForce = 10f;
 
         private float _slowSpeed = 1f;
 
@@ -60,9 +61,13 @@ namespace Adventure
         //private string _fireStoneText;
 
 
+        [SerializeField] private GameObject _box;
+        [SerializeField] private GameObject _itemName;
+        [SerializeField] private GameObject _panelDeath;
         private bool _action;
         private bool _attack;
-
+        //private bool _isPushing;
+        private bool _isStrong;
         private float _vInput;
         private float _hInput;
         private bool _isRunning;
@@ -72,10 +77,17 @@ namespace Adventure
         private Animator _animator;
         private Rigidbody _rb;
 
+
+        [Header("Звуки")]
+        [SerializeField] private AudioSource _audsHit;
+        [SerializeField] private AudioSource _audsDeath;
+        [SerializeField] private AudioSource _audsBox;
+
+
         AudioSource m_AudioSource;
 
         private float _rechargeTime = 1f;
-
+        private bool _playBoxSourse;
 
         void Awake()
         {
@@ -98,13 +110,14 @@ namespace Adventure
 
 
             // реализуем прыжок
-            if (Input.GetKeyDown(KeyCode.Space) && _grounded)
-            {
-                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.VelocityChange);
-                Vector3 force = transform.forward * _vInput * _jumpForce * 60f;
-                _rb.AddForce(force);
-                //_rb.AddForce(Vector3.transform.up * _vInput, ForceMode.VelocityChange);
-            }
+            // ПРЫЖОК ОТКЛЮЧЕН Т.К. НЕ СООТВЕТСВУЕТ ЗАМЫСЛУ ИГРЫ
+            //if (Input.GetKeyDown(KeyCode.Space) && _grounded)
+            //{
+                //_rb.AddForce(Vector3.up * _jumpForce, ForceMode.VelocityChange);
+                //Vector3 force = transform.forward * _vInput * _jumpForce * 60f;
+                //_rb.AddForce(force);
+                
+            //}
 
             _animator.SetBool("Action", _action);
             _animator.SetBool("Attack", _attack);
@@ -195,7 +208,16 @@ namespace Adventure
 
             //Переключаем активные позиции
             if (Input.GetMouseButtonDown(2)) SelectActive();
-
+        
+            if(_playBoxSourse)
+            {
+                _audsBox.Play();
+            }
+            else
+            {
+                _audsBox.Stop();
+            }
+            
         }
 
 
@@ -208,7 +230,9 @@ namespace Adventure
 
             _animator.SetBool("Grounded", _grounded);
             _animator.SetInteger("ForwardSpeed", (int)_vInput);
-
+            //ЭТА АНИМАЦИЯ НЕУДАЧНАЯ
+            //_animator.SetBool("Pushing", _isPushing);
+            
             if (!_isDeath)
             {
 
@@ -236,26 +260,33 @@ namespace Adventure
             {
                 m_AudioSource.Stop();
             }
+            
+            
+
+
+
 
             //бросок камня по направлению курсора
 
-            RaycastHit hit; //удар луча о препятсятвие
+            //Бросок камня по направлению курсора отключен т.к. в данной игре не имеет актуальности а только мешает
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // создаем луч из камеры в направлении курсора мыши
-            Debug.DrawRay(ray.origin, ray.direction * 5f, Color.green); //визуализируем луч зеленым цветом
+            //RaycastHit hit; //удар луча о препятсятвие
+
+            //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // создаем луч из камеры в направлении курсора мыши
+            //Debug.DrawRay(ray.origin, ray.direction * 5f, Color.green); //визуализируем луч зеленым цветом
 
             if (Input.GetMouseButtonDown(0) && _selectActiveThings != -1) // Если нажали левую кнопку мыши и у нас есть камни
             {
-                if (Physics.Raycast(ray, out hit)) //Если луч попал в препятствие
-                {
-                    Vector3 direction = hit.point - transform.position; //угол между точкой куда попал луч и направлением игрока
-                    Quaternion rotation = Quaternion.LookRotation(direction); //высчитываем кватернион на который необходимо повернуться
-                    rotation.x = 0f; //стабилизиреум квартанион по осям x и z
-                    rotation.z = 0f;
+                //if (Physics.Raycast(ray, out hit)) //Если луч попал в препятствие
+                //{
+                    //Vector3 direction = hit.point - transform.position; //угол между точкой куда попал луч и направлением игрока
+                    //Quaternion rotation = Quaternion.LookRotation(direction); //высчитываем кватернион на который необходимо повернуться
+                    //rotation.x = 0f; //стабилизиреум квартанион по осям x и z
+                    //rotation.z = 0f;
                     //rotation = rotation.normalized; //нормализуем кватернион (без этого выдает ошибку при стабилизации)
                     //_rb.MoveRotation(rotation); //поворачиваем персонажа
 
-                    transform.localRotation = Quaternion.Slerp(transform.rotation, rotation, 50 * Time.deltaTime);
+                    //transform.localRotation = Quaternion.Slerp(transform.rotation, rotation, 50 * Time.deltaTime);
 
                     //_attack = true;
 
@@ -263,15 +294,12 @@ namespace Adventure
                     if (_selectActiveThings >= 0 && _selectActiveThings < 4)
                     {
                         _animator.SetTrigger("AttackAxe");
-
+                        _audsHit.Play();
                         Invoke(nameof(Attack), 0.5f);
                         Invoke(nameof(ResetAll), 0.5f);
                     }
                     else if (_selectActiveThings == 4) Drink();
-
-
-
-                }
+                //}
             }
         }
 
@@ -308,7 +336,7 @@ namespace Adventure
             {
                 _animator.SetTrigger("Drink");
                 _bottle--;
-
+                _isStrong = true;
             }
 
         }
@@ -325,6 +353,7 @@ namespace Adventure
 
         public void Death()
         {
+            _audsDeath.Play();
             _isDeath = true;
             _animator.SetTrigger("Death");
             StartCoroutine(DeathPlayer());
@@ -336,7 +365,11 @@ namespace Adventure
 
 
             yield return new WaitForSeconds(2f);
-            SceneManager.LoadScene(0);
+            //SceneManager.LoadScene(0);
+            _panelDeath.SetActive(true);
+            //Time.timeScale = 0f;
+            AudioListener.volume = 0f;
+
             yield return null;
         }
 
@@ -349,6 +382,7 @@ namespace Adventure
                     ClearSelectActive();
                     _stoneIcon.transform.parent.transform.parent.transform.GetChild(3).transform.GetChild(0).gameObject.SetActive(true);
                     _selectActiveThings++;
+                    _itemName.GetComponent<TextMeshProUGUI>().text = "камень";
                     goto M1;
                     
                 }
@@ -361,6 +395,7 @@ namespace Adventure
                     ClearSelectActive();
                     _stoneIcon.transform.parent.transform.parent.transform.GetChild(3).transform.GetChild(1).gameObject.SetActive(true);
                     _selectActiveThings++;
+                    _itemName.GetComponent<TextMeshProUGUI>().text = "замедляющий камень";
                     goto M1;
                 }
                 else _selectActiveThings = 1;
@@ -373,6 +408,7 @@ namespace Adventure
                     ClearSelectActive();
                     _stoneIcon.transform.parent.transform.parent.transform.GetChild(3).transform.GetChild(2).gameObject.SetActive(true);
                     _selectActiveThings++;
+                    _itemName.GetComponent<TextMeshProUGUI>().text = "огненный камень";
                     goto M1;
                 }
                 else _selectActiveThings = 2;
@@ -384,6 +420,7 @@ namespace Adventure
                     ClearSelectActive();
                     _stoneIcon.transform.parent.transform.parent.transform.GetChild(3).transform.GetChild(3).gameObject.SetActive(true);
                     _selectActiveThings++;
+                    _itemName.GetComponent<TextMeshProUGUI>().text = "топор";
                     goto M1;
                 }
                 else _selectActiveThings = 3;
@@ -395,6 +432,7 @@ namespace Adventure
                     ClearSelectActive();
                     _stoneIcon.transform.parent.transform.parent.transform.GetChild(3).transform.GetChild(4).gameObject.SetActive(true);
                     _selectActiveThings = 4;
+                    _itemName.GetComponent<TextMeshProUGUI>().text = "зелье силы";
                     goto M1;
                 }
                 else _selectActiveThings = 4;
@@ -405,6 +443,7 @@ namespace Adventure
                 ClearSelectActive();
                 _stoneIcon.transform.parent.transform.parent.transform.GetChild(3).transform.GetChild(5).gameObject.SetActive(true);
                 _selectActiveThings = -1;
+                _itemName.GetComponent<TextMeshProUGUI>().text = "пусто";
             }
 
 
@@ -442,7 +481,35 @@ namespace Adventure
                 Debug.Log("Создан замедляющий камень");
                 _action = true;
                 Invoke(nameof(ResetAll), 0.5f);
-            }    
+            }
+
+            if (other.name == "PointTakeFireStone" && Input.GetMouseButtonDown(1))
+            {
+                _stone--;
+                _fireStone++;
+                Debug.Log("Создан огненный камень");
+                _action = true;
+                Invoke(nameof(ResetAll), 0.5f);
+            }
+
+
+            if (other.name == "Box" && Input.GetKey(KeyCode.E) && _isStrong)
+            {
+                //_isPushing = true;
+                _moveSpeed = 1f;
+                _box.GetComponent<Rigidbody>().isKinematic = false;
+                _playBoxSourse = true;
+
+            }
+            else
+            {
+                //_isPushing = false;
+                _moveSpeed = 4f;
+                _box.GetComponent<Rigidbody>().isKinematic = true;
+                _playBoxSourse = false;
+
+            }
+
 
 
 
@@ -473,9 +540,6 @@ namespace Adventure
                     _action = true;
                     Invoke(nameof(ResetAll), 0.5f);
                 }
-
-
-
             }
         }
 
